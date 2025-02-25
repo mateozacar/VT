@@ -1,0 +1,13 @@
+config:
+  target: "http://localhost:8080"
+  phases:
+    - duration: 60  # Test duration in seconds
+      arrivalRate: 100  # Requests per second
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  - flow:
+      - get:
+          url: "/api/test"
