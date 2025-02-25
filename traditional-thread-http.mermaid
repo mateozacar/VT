@@ -1,0 +1,37 @@
+sequenceDiagram
+    participant C as Cliente HTTP
+    participant S as Servidor Web
+    participant PT as Platform Thread
+    participant OS as Sistema Operativo
+    participant SV as Service Layer
+    participant DB as Base de Datos
+    
+    C->>+S: POST /users (JSON datos usuario)
+    S->>+PT: new Thread()
+    Note over PT: Thread del SO<br/>1MB+ de memoria
+    
+    PT->>OS: Asigna recursos del SO
+    Note over PT,OS: Thread permanece<br/>vinculado al SO
+    
+    PT->>SV: Validar datos usuario
+    Note over SV: Validación de datos
+    
+    PT->>DB: Inicia conexión DB
+    Note over PT: Thread bloqueado<br/>esperando conexión
+    Note over PT: No puede ser usado<br/>por otras tareas
+    
+    DB-->>PT: Conexión establecida
+    
+    PT->>DB: INSERT INTO users...
+    Note over PT: Thread nuevamente<br/>bloqueado
+    Note over PT: Consumiendo recursos<br/>mientras espera
+    
+    DB-->>PT: Usuario creado
+    
+    PT->>SV: Procesa respuesta
+    SV-->>PT: Usuario creado exitosamente
+    
+    PT->>S: Prepara respuesta HTTP
+    S-->>-C: 201 Created (JSON usuario)
+    
+    Note over PT: Thread se destruye<br/>liberando recursos del SO

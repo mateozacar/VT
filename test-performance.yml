@@ -1,0 +1,17 @@
+config:
+  target: "http://localhost:8080"  # Change this to your API's base URL
+  phases:
+    - duration: 60   
+      arrivalRate: 500   # Number of new virtual users arriving each second
+  defaults:
+    headers:
+      Content-Type: "application/json"  # Set header to indicate JSON payload
+
+scenarios:
+  - flow:
+      - post:
+          url: "/api/users"  # Modify with your specific endpoint
+          json:
+            name: "John Doe"
+            age: 30
+            email: "john.doe@example.com"

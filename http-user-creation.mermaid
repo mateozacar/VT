@@ -1,0 +1,41 @@
+sequenceDiagram
+    participant C as Cliente HTTP
+    participant S as Servidor Web
+    participant VT as Virtual Thread
+    participant CT as Carrier Thread
+    participant SV as Service Layer
+    participant DB as Base de Datos
+    
+    C->>+S: POST /users (JSON datos usuario)
+    S->>+VT: Thread.startVirtualThread()
+    
+    Note over VT: Virtual Thread procesa<br/>la petición HTTP
+    
+    VT->>CT: Monta en Carrier Thread
+    
+    CT->>SV: Validar datos usuario
+    Note over SV: Validación de datos
+    
+    CT->>DB: Inicia conexión DB
+    Note over VT,CT: Operación bloqueante:<br/>Conexión DB
+    CT-->>VT: Desmonta Virtual Thread
+    
+    Note over VT: Virtual Thread en<br/>estado "parked"
+    
+    DB-->>VT: Conexión establecida
+    VT->>CT: Remonta en (posible nuevo) CT
+    
+    CT->>DB: INSERT INTO users...
+    Note over VT,CT: Operación bloqueante:<br/>Inserción DB
+    CT-->>VT: Desmonta Virtual Thread
+    
+    DB-->>VT: Usuario creado
+    VT->>CT: Remonta en CT
+    
+    CT->>SV: Procesa respuesta
+    SV-->>VT: Usuario creado exitosamente
+    
+    VT->>S: Prepara respuesta HTTP
+    S-->>-C: 201 Created (JSON usuario)
+    
+    Note over VT: Virtual Thread completa<br/>y se libera

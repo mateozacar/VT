@@ -1,0 +1,13 @@
+config:
+  target: "http://localhost:8080"  # Base URL of your API, change if it's hosted differently
+  phases:
+    - duration: 60
+      arrivalRate: 100  # Adjust the rate according to your server capacity and testing needs
+  defaults:
+    headers:
+      Content-Type: "application/json"  # Even though GET request may not need it, keeping for uniformity
+
+scenarios:
+  - flow:
+      - get:
+          url: "/api/cpu"  # Endpoint for CPU intensive task
